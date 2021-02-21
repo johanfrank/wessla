@@ -3,5 +3,6 @@
   "description": "Run Laravel 7+ in Windows WSL2 with separate HTTP and PHP containers.",
   "require": {
     "php": ">=7.3"
-  }
+  },
+  "license": "MIT"
 }
