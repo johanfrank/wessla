@@ -4,5 +4,8 @@
   "require": {
     "php": ">=7.3"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "bin": [
+    "bin/wessla"
+  ]
 }
