@@ -1,0 +1,64 @@
+version: "3.1"
+services:
+
+  webserver:
+    build:
+      context: ./containers/nginx
+      dockerfile: Dockerfile
+      args:
+        WWWUSER: '${WWWUSER}'
+        WWWGROUP: '${WWWGROUP}'
+    environment:
+      WWWUSER: '${WWWUSER}'
+      WWWGROUP: '${WWWGROUP}'
+    working_dir: /application
+    volumes:
+      - .:/application
+      - ./containers/nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - mysql
+      - redis
+      - php-fpm
+
+  php-fpm:
+    build:
+      context: ./containers/dev/php-fpm
+      dockerfile: Dockerfile
+      args:
+        WWWUSER: '${WWWUSER}'
+        WWWGROUP: '${WWWGROUP}'
+    environment:
+      WWWUSER: '${WWWUSER}'
+    working_dir: /application
+    volumes:
+      - .:/application
+      - ./containers/php-fpm/php.ini:/etc/php/7.3/fpm/conf.d/99-overrides.ini
+
+  redis:
+    image: redis:alpine
+    build: ./containers/redis
+    volumes:
+      - 'localredis:/data'
+    ports:
+      - '${FORWARD_REDIS_PORT:-6379}:6379'
+
+  mysql:
+    image: mysql:5.7.29
+    restart: always
+    volumes:
+      - 'localmysql:/var/lib/mysql'
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=local_database
+      - MYSQL_USER=local_user
+      - MYSQL_PASSWORD=password
+    ports:
+      - '${FORWARD_DB_PORT:-3306}:3306'
+
+volumes:
+  localmysql:
+    driver: local
+  localredis:
+    driver: local
